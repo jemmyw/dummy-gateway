@@ -25,7 +25,7 @@ end
 
 post '/send_sms' do
   begin
-    response = @db.save_doc({:number => params[:number], :message => params[:message]})
+    response = @db.save_doc({:number => params[:number], :message => params[:message], :url => params[:url], :received_at => Time.now.to_i})
     @id = response["id"].strip
     erb :send_sms
   rescue => @error
