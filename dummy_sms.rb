@@ -11,28 +11,30 @@ module JavascriptHelper
   end
 end
 
-use Rack::Auth::Basic do |username, password|
-  username == 'api' && password == 'zwUx8HAk4NmfhaheqQ'
-end
-
-before do
-  @db = CouchRest.database!("http://127.0.0.1:5984/dummy_sms")
-end
-
-helpers do
-  include JavascriptHelper
-end
-
-post '/send_sms' do
-  begin
-    response = @db.save_doc({:number => params[:number], :message => params[:message], :url => params[:url], :received_at => Time.now.to_i})
-    @id = response["id"].strip
-    erb :send_sms
-  rescue => @error
-    erb :error
+class DummySms < Sinatra::Application
+  use Rack::Auth::Basic do |username, password|
+    username == 'api' && password == 'zwUx8HAk4NmfhaheqQ'
   end
-end
 
-get '/send_sms' do
-  erb :send_sms_instructions
+  before do
+    @db = CouchRest.database!("http://127.0.0.1:5984/dummy_sms")
+  end
+
+  helpers do
+    include JavascriptHelper
+  end
+
+  post '/send_sms' do
+    begin
+      response = @db.save_doc({:number => params[:number], :message => params[:message], :url => params[:url], :received_at => Time.now.to_i})
+      @id = response["id"].strip
+      erb :send_sms
+    rescue => @error
+      erb :error
+    end
+  end
+
+  get '/send_sms' do
+    erb :send_sms_instructions
+  end
 end
